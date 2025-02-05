@@ -9,11 +9,13 @@ def download_instagram_media(url, download_folder):
         # Create an Instaloader instance
         L = instaloader.Instaloader()
 
-        # Optional: Log in to Instagram if the post is private
-        # Uncomment the lines below and replace with your credentials
-        # username = "your_username"
-        # password = "your_password"
-        # L.login(username, password)
+        # Configure Instaloader to avoid downloading extra files
+        L.download_pictures = True  # Download images
+        L.download_videos = True   # Download videos
+        L.download_video_thumbnails = False  # Avoid downloading video thumbnails
+        L.save_metadata = False    # Avoid saving metadata (.json, .txt)
+        L.compress_json = False    # Avoid saving compressed JSON files
+        L.post_metadata_txt_pattern = ""  # Avoid saving metadata text files
 
         print("Initializing Instaloader...")
         shortcode = url.split("/")[-2]
@@ -23,7 +25,8 @@ def download_instagram_media(url, download_folder):
         print(f"Fetching post with shortcode: {shortcode}")
 
         print(f"Downloading media to folder: {download_folder}")
-        L.download_post(post, target=download_folder)
+        L.dirname_pattern = download_folder  # Set the download folder
+        L.download_post(post, target=shortcode)  # Use shortcode as the target folder name
 
         messagebox.showinfo("Success", "Media downloaded successfully!")
     except Exception as e:
