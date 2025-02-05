@@ -1,5 +1,6 @@
 import os
 import threading
+import time  # Import the time module
 from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, filedialog, ttk
 from PIL import Image, ImageTk  # For displaying the Instagram logo
 import instaloader
@@ -19,11 +20,11 @@ def download_single_post(url, download_folder, progress):
         post = instaloader.Post.from_shortcode(L.context, shortcode)
         L.dirname_pattern = download_folder
 
-        # Simulate progress for the download
+        # Simulate smooth progress for the download
         for i in range(101):
             progress['value'] = i
             root.update_idletasks()
-            time.sleep(0.05)  # Simulate download progress
+            time.sleep(0.02)  # Smooth animation
 
         L.download_post(post, target=shortcode)
 
@@ -50,43 +51,64 @@ def start_download():
 # Create the main application window
 root = Tk()
 root.title("Instagram Media Downloader")
-root.geometry("600x400")
+root.geometry("600x600")
 root.resizable(False, False)
-root.configure(bg="#f0f2f5")  # Set background color
+root.configure(bg="#1C1C1E")  # Dark mode background
 
 # Load Instagram logo
 logo_image = Image.open("instagram_logo.png")  # Ensure you have an 'instagram_logo.png' file
-logo_image = logo_image.resize((150, 150), Image.LANCZOS)
+logo_image = logo_image.resize((80, 80), Image.LANCZOS)
 logo_photo = ImageTk.PhotoImage(logo_image)
 
+# Header Section
+header_frame = Label(root, bg="#1C1C1E", pady=20)
+header_frame.pack(fill="x")
+
 # Display Instagram logo
-logo_label = Label(root, image=logo_photo, bg="#f0f2f5")
-logo_label.grid(row=0, column=0, columnspan=2, pady=10)
+logo_label = Label(header_frame, image=logo_photo, bg="#1C1C1E")
+logo_label.grid(row=0, column=0, padx=20)
 
 # Project name
-project_name = Label(root, text="Instagram Media Downloader", font=("Helvetica", 18, "bold"), bg="#f0f2f5", fg="#E1306C")
-project_name.grid(row=1, column=0, columnspan=2, pady=10)
+project_name = Label(header_frame, text="Social Downloader", font=("Helvetica", 18, "bold"), bg="#1C1C1E", fg="#007AFF")
+project_name.grid(row=0, column=1, padx=10)
 
-# URL input field
-Label(root, text="Instagram Post URL:", font=("Helvetica", 12), bg="#f0f2f5").grid(row=2, column=0, sticky="e", padx=10)
+# Input Field Section
+input_frame = Label(root, bg="#1C1C1E", pady=20)
+input_frame.pack(fill="x")
+
+Label(input_frame, text="Enter Instagram Post URL:", font=("Helvetica", 14), bg="#1C1C1E", fg="#FFFFFF").pack(anchor="w", padx=20)
 url_var = StringVar()
-Entry(root, textvariable=url_var, width=40, font=("Helvetica", 12)).grid(row=2, column=1, padx=10, pady=10)
+entry_style = {"font": ("Helvetica", 14), "bd": 0, "bg": "#2C2C2E", "fg": "#FFFFFF", "relief": "flat",
+               "highlightthickness": 1, "highlightbackground": "#3A3A3C", "highlightcolor": "#007AFF"}
+url_entry = Entry(input_frame, textvariable=url_var, width=50, **entry_style)
+url_entry.pack(fill="x", padx=20, pady=10, ipady=8)
 
-# Progress Bar
-progress_bar = ttk.Progressbar(root, orient="horizontal", length=400, mode="determinate")
-progress_bar.grid(row=3, column=0, columnspan=2, pady=20)
+# Download Button Section
+button_frame = Label(root, bg="#1C1C1E", pady=20)
+button_frame.pack(fill="x")
 
-# Download button with animation
-def animate_button(button):
-    original_bg = button.cget("bg")
-    button.config(bg="#FF6F61")
-    root.update_idletasks()
-    root.after(200, lambda: button.config(bg=original_bg))
+# Download button with hover effect
+def on_enter(event):
+    download_button.config(bg="#007AFF", fg="#FFFFFF")
 
-download_button = Button(root, text="Download", command=start_download, bg="#4CAF50", fg="white", font=("Helvetica", 12),
-                          padx=20, pady=5, relief="flat", borderwidth=0, activebackground="#45A049")
-download_button.grid(row=4, column=0, columnspan=2, pady=10)
-download_button.bind("<Button-1>", lambda event: animate_button(download_button))
+def on_leave(event):
+    download_button.config(bg="#3A3A3C", fg="#FFFFFF")
+
+download_button = Button(button_frame, text="Download", command=start_download, bg="#3A3A3C", fg="#FFFFFF",
+                         font=("Helvetica", 14), padx=20, pady=5, relief="flat", borderwidth=0, activebackground="#007AFF")
+download_button.pack()
+download_button.bind("<Enter>", on_enter)
+download_button.bind("<Leave>", on_leave)
+
+# Progress Bar Section
+progress_frame = Label(root, bg="#1C1C1E", pady=20)
+progress_frame.pack(fill="x")
+
+style = ttk.Style()
+style.theme_use("clam")
+style.configure("TProgressbar", thickness=10, troughcolor="#2C2C2E", background="#007AFF", bordercolor="#1C1C1E")
+progress_bar = ttk.Progressbar(progress_frame, orient="horizontal", length=400, mode="determinate", style="TProgressbar")
+progress_bar.pack(fill="x", padx=20)
 
 # Run the application
 root.mainloop()
