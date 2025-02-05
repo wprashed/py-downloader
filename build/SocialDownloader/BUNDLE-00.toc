@@ -1,0 +1,3 @@
+([('SocialDownloader',
+   '/Users/rashed/PycharmProjects/py-downloader/dist/SocialDownloader',
+   'EXECUTABLE')],)
