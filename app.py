@@ -38,8 +38,8 @@ def download_user_content(username, download_folder):
         L.post_metadata_txt_pattern = ""
 
         # Log in to Instagram
-        username_insta = "your_username"
-        password_insta = "your_password"
+        username_insta = "reallilithlusts"
+        password_insta = "Kuetiict@125"
         L.login(username_insta, password_insta)
 
         print(f"Downloading all content from user: {username}")
