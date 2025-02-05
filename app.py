@@ -69,7 +69,7 @@ logo_label = Label(header_frame, image=logo_photo, bg="#1C1C1E")
 logo_label.grid(row=0, column=0, padx=20)
 
 # Project name
-project_name = Label(header_frame, text="Instagram Media Downloader", font=("Helvetica", 18, "bold"), bg="#1C1C1E", fg="#fff")
+project_name = Label(header_frame, text="Social Downloader", font=("Helvetica", 18, "bold"), bg="#1C1C1E", fg="#007AFF")
 project_name.grid(row=0, column=1, padx=10)
 
 # Input Field Section
@@ -84,18 +84,18 @@ url_entry = Entry(input_frame, textvariable=url_var, width=50, **entry_style)
 url_entry.pack(fill="x", padx=20, pady=10, ipady=8)
 
 # Download Button Section
-button_frame = Label(root, bg="#1C1C1E")
-button_frame.pack(fill="x", pady=20)
+button_frame = Label(root, bg="#1C1C1E", pady=20)
+button_frame.pack(fill="x")
 
 # Download button with hover effect
 def on_enter(event):
-    download_button.config(bg="#962fbf", fg="#962fbf")
+    download_button.config(bg="#007AFF", fg="#FFFFFF")
 
 def on_leave(event):
-    download_button.config(bg="#962fbf", fg="#962fbf")
+    download_button.config(bg="#3A3A3C", fg="#FFFFFF")
 
-download_button = Button(button_frame, text="Download", command=start_download, bg="#962fbf", fg="#962fbf",
-                         font=("Helvetica", 14), padx=20, pady=5, relief="flat", borderwidth=0, activebackground="#962fbf")
+download_button = Button(button_frame, text="Download", command=start_download, bg="#3A3A3C", fg="#FFFFFF",
+                         font=("Helvetica", 14), padx=20, pady=5, relief="flat", borderwidth=0, activebackground="#007AFF")
 download_button.pack()
 download_button.bind("<Enter>", on_enter)
 download_button.bind("<Leave>", on_leave)
