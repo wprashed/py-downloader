@@ -1,64 +1,63 @@
 import os
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+import threading
+from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, filedialog
+import instaloader
 
+# Function to download Instagram media
+def download_instagram_media(url, download_folder):
+    try:
+        # Create an Instaloader instance
+        L = instaloader.Instaloader()
 
-def download_media(url, download_folder):
-    # Create the download folder if it doesn't exist
-    if not os.path.exists(download_folder):
-        os.makedirs(download_folder)
+        # Optional: Log in to Instagram if the post is private
+        # Uncomment the lines below and replace with your credentials
+        # username = "your_username"
+        # password = "your_password"
+        # L.login(username, password)
 
-    # Send a GET request to the URL
-    response = requests.get(url)
+        print("Initializing Instaloader...")
+        shortcode = url.split("/")[-2]
+        print(f"Extracting shortcode from URL: {shortcode}")
 
-    # Check if the request was successful
-    if response.status_code != 200:
-        print(f"Failed to retrieve the page. Status code: {response.status_code}")
+        post = instaloader.Post.from_shortcode(L.context, shortcode)
+        print(f"Fetching post with shortcode: {shortcode}")
+
+        print(f"Downloading media to folder: {download_folder}")
+        L.download_post(post, target=download_folder)
+
+        messagebox.showinfo("Success", "Media downloaded successfully!")
+    except Exception as e:
+        print(f"Error: {e}")  # Print the error to the console for debugging
+        messagebox.showerror("Error", f"Failed to download media: {e}")
+
+# Function to handle the download button click
+def start_download():
+    url = url_var.get()
+    if not url:
+        messagebox.showwarning("Input Error", "Please enter a valid Instagram URL.")
         return
 
-    # Parse the HTML content using BeautifulSoup
-    soup = BeautifulSoup(response.text, 'html.parser')
+    # Open a dialog to select the download folder
+    download_folder = filedialog.askdirectory(title="Select Download Folder")
+    if not download_folder:
+        messagebox.showwarning("Folder Error", "Please select a valid download folder.")
+        return
 
-    # Find all image tags
-    img_tags = soup.find_all('img')
-    video_tags = soup.find_all('video')
+    # Start the download in a separate thread to avoid freezing the GUI
+    threading.Thread(target=download_instagram_media, args=(url, download_folder)).start()
 
-    # Download images
-    for img in img_tags:
-        img_url = img.get('src') or img.get('data-src')
-        if img_url:
-            img_url = urljoin(url, img_url)  # Handle relative URLs
-            img_name = os.path.basename(img_url)
-            img_path = os.path.join(download_folder, img_name)
+# Create the main application window
+root = Tk()
+root.title("Instagram Media Downloader")
+root.geometry("500x200")
 
-            try:
-                img_data = requests.get(img_url).content
-                with open(img_path, 'wb') as f:
-                    f.write(img_data)
-                print(f"Downloaded image: {img_name}")
-            except Exception as e:
-                print(f"Failed to download image {img_url}: {e}")
+# URL input field
+Label(root, text="Instagram URL:").pack(pady=5)
+url_var = StringVar()
+Entry(root, textvariable=url_var, width=50).pack(pady=5)
 
-    # Download videos
-    for video in video_tags:
-        video_url = video.get('src') or video.get('data-src')
-        if video_url:
-            video_url = urljoin(url, video_url)  # Handle relative URLs
-            video_name = os.path.basename(video_url)
-            video_path = os.path.join(download_folder, video_name)
+# Download button
+Button(root, text="Download", command=start_download).pack(pady=20)
 
-            try:
-                video_data = requests.get(video_url).content
-                with open(video_path, 'wb') as f:
-                    f.write(video_data)
-                print(f"Downloaded video: {video_name}")
-            except Exception as e:
-                print(f"Failed to download video {video_url}: {e}")
-
-
-if __name__ == "__main__":
-    # Example usage
-    url = input("Enter the URL of the website: ")
-    download_folder = "downloads"
-    download_media(url, download_folder)
+# Run the application
+root.mainloop()
